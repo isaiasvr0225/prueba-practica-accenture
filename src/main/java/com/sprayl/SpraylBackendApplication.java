@@ -1,15 +1,8 @@
 package com.sprayl;
 
-import com.sprayl.domain.entity.PermissionEntity;
-import com.sprayl.domain.entity.RoleEntity;
-import com.sprayl.domain.entity.RoleEnum;
-import com.sprayl.infrastructure.persistence.repository.ClientRepository;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 
-import java.util.Set;
 
 @SpringBootApplication
 public class SpraylBackendApplication {
