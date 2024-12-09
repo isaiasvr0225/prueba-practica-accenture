@@ -7,4 +7,4 @@ COPY ./mvnw /root
 RUN ./mvnw dependency:go-offline
 COPY ./src /root/src
 RUN ./mvnw clean package -DskipTests
-ENTRYPOINT [ "java", "-jar", "/root/target/sprayl-backend-0.0.1-SNAPSHOT.jar" ]
+ENTRYPOINT [ "java", "-jar", "/root/target/prueba-practica-accenture-1.0.0.jar" ]

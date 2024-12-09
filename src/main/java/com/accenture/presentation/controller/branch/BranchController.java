@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * @package : com.accenture.presentation.controller
- * @name : UserController.java
+ * @name : BranchController.java
  * @date : 2024-12
  * @author : Isaias Villarreal
  * @version : 1.0.0
@@ -48,8 +48,8 @@ public @RestController class BranchController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
-    public HttpStatus updateBranchName(@PathVariable(name = "id") Long id, @RequestParam String newBranchName) {
-        return this.branchService.updateBranchName(id, newBranchName).join();
+    public HttpStatus updateBranchName(@PathVariable(name = "id") Long id, @RequestParam String newStockQuantity) {
+        return this.branchService.updateBranchName(id, newStockQuantity).join();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")

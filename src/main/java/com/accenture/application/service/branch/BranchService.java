@@ -42,14 +42,14 @@ public interface BranchService {
      * This method is used to update a branch name
      * @param id id
      * @param newBranchName newBranchName
-     * @return CompletableFuture<UserRequestDTO>
+     * @return CompletableFuture<HttpStatus>
      */
     CompletableFuture<HttpStatus> updateBranchName(Long id, String newBranchName);
 
     /**
      * This method is used to delete a branch
      * @param id id
-     * @return CompletableFuture<Void>
+     * @return CompletableFuture<HttpStatus>
      */
     CompletableFuture<HttpStatus> delete(Long id);
 

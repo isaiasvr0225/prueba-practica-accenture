@@ -1,7 +1,9 @@
 package com.accenture.application.service.product;
 
-import com.accenture.infrastructure.persistence.dto.user.UserRequestDTO;
-import com.accenture.infrastructure.persistence.dto.user.UserResponseDTO;
+import com.accenture.infrastructure.persistence.dto.branch.BranchRequestDTO;
+import com.accenture.infrastructure.persistence.dto.branch.BranchResponseDTO;
+import com.accenture.infrastructure.persistence.dto.product.ProductRequestDTO;
+import com.accenture.infrastructure.persistence.dto.product.ProductResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -9,47 +11,47 @@ import org.springframework.http.HttpStatus;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @package : com.sprayl.application.service
- * @name : UserService.java
- * @date : 2024-08
+ * @package : com.accenture.application.service
+ * @name : ProductService.java
+ * @date : 2024-12
  * @author : Isaias Villarreal
  * @version : 1.0.0
  */
 public interface ProductService {
 
     /**
-     * This method is used to find all clients using pagination
-     * @param pageable pa
-     * @return CompletableFuture<Page<UserRequestDTO>>
+     * This method is used to find all products using pagination
+     * @param pageable pageable
+     * @return CompletableFuture<Page<ProductResponseDTO>>
      */
-    CompletableFuture<Page<UserResponseDTO>> findAll(Pageable pageable);
+    CompletableFuture<Page<ProductResponseDTO>> findAll(Pageable pageable);
 
     /**
-     * This method is used to find a client by id
-     * @param Long id
-     * @return CompletableFuture<UserRequestDTO>
+     * This method is used to find a product by id
+     * @param id id
+     * @return CompletableFuture<ProductResponseDTO>
      */
-    CompletableFuture<UserResponseDTO> findById(Long id);
+    CompletableFuture<ProductResponseDTO> findById(Long id);
 
     /**
-     * This method is used to save a client
-     * @param ClientDto userRequestDTO
-     * @return CompletableFuture<UserRequestDTO>
+     * This method is used to save a product
+     * @param productRequestDTO productRequestDTO
+     * @return CompletableFuture<HttpStatus>
      */
-    CompletableFuture<HttpStatus> save(UserRequestDTO userRequestDTO);
+    CompletableFuture<HttpStatus> save(ProductRequestDTO productRequestDTO);
 
     /**
-     * This method is used to update a client
-     * @param Long id
-     * @param ClientDto userRequestDTO
-     * @return CompletableFuture<UserRequestDTO>
+     * This method is used to update a product stock
+     * @param productId productId
+     * @param newStockQuantity newStockQuantity
+     * @return CompletableFuture<HttpStatus>
      */
-    CompletableFuture<HttpStatus> update(Long id, UserRequestDTO userRequestDTO);
+    CompletableFuture<HttpStatus> updateStock(Long productId, Integer newStockQuantity);
 
     /**
-     * This method is used to delete a client
-     * @param Long id
-     * @return CompletableFuture<Void>
+     * This method is used to delete a product
+     * @param id id
+     * @return CompletableFuture<HttpStatus>
      */
     CompletableFuture<HttpStatus> delete(Long id);
 

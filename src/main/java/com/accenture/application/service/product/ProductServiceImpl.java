@@ -1,11 +1,16 @@
 package com.accenture.application.service.product;
 
-import com.accenture.domain.entity.UserEntity;
+import com.accenture.domain.entity.Branch;
+import com.accenture.domain.entity.Product;
+import com.accenture.domain.exception.BranchException;
+import com.accenture.domain.exception.ProductException;
 import com.accenture.domain.exception.UserException;
-import com.accenture.infrastructure.persistence.dto.user.UserRequestDTO;
-import com.accenture.infrastructure.persistence.dto.user.UserResponseDTO;
-import com.accenture.infrastructure.persistence.repository.RoleEntityRepository;
-import com.accenture.infrastructure.persistence.repository.UserRepository;
+import com.accenture.infrastructure.persistence.dto.branch.BranchRequestDTO;
+import com.accenture.infrastructure.persistence.dto.branch.BranchResponseDTO;
+import com.accenture.infrastructure.persistence.dto.product.ProductRequestDTO;
+import com.accenture.infrastructure.persistence.dto.product.ProductResponseDTO;
+import com.accenture.infrastructure.persistence.repository.BranchRepository;
+import com.accenture.infrastructure.persistence.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +18,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @package : com.sprayl.application.service
- * @name : UserServiceImpl.java
- * @date : 2024-08
+ * @package : com.accenture.application.service
+ * @name : BranchServiceImpl.java
+ * @date : 2024-12
  * @author  : Isaias Villarreal
  * @version : 1.0.0
  */
@@ -29,141 +33,121 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public @Service class ProductServiceImpl implements ProductService {
 
-    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
-    private final RoleEntityRepository roleRepository;
+    private final BranchRepository branchRepository;
+
     private final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
+    private final ProductService productService;
 
 
     /**
-     * This method is used to find all clients using pagination, also it is an asynchronous method
-     * @param Pageable pageable
-     * @return CompletableFuture<Page<UserRequestDTO>>
+     * This method is used to find all products using pagination, also it is an asynchronous method
+     * @param pageable pageable
+     * @return CompletableFuture<Page<ProductResponseDTO>>
      */
     @Async("asyncExecutor")
     @Override
-    public CompletableFuture<Page<UserResponseDTO>> findAll(Pageable pageable) {
+    public CompletableFuture<Page<ProductResponseDTO>> findAll(Pageable pageable) {
 
-        Page<UserEntity> pageClientEntity = this.userRepository.findAll(pageable);
+        Page<Product> pageProductEntity = this.productRepository.findAll(pageable);
 
-        logger.info("pageClientEntity: " + pageClientEntity);
+        logger.info("pageProductEntity: " + pageProductEntity);
 
-        if (pageClientEntity.isEmpty()) {
+        if (pageProductEntity.isEmpty()) {
             logger.error("Internal server error");
-            throw new UserException("500", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BranchException("500", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        Page<UserResponseDTO> clientSavedDtos = pageClientEntity.map((userEntity) -> UserResponseDTO.builder()
-                .id(userEntity.getId())
-                .fullName(userEntity.getFullName())
-                .email(userEntity.getEmail())
-                .role(userEntity.getRole())
+        Page<ProductResponseDTO> productResponseDTOS = pageProductEntity.map((productServiceEntity) -> ProductResponseDTO.builder()
+                .id(productServiceEntity.getId())
+                .name(productServiceEntity.getName())
+                .stock(productServiceEntity.getStock())
+                .branch(productServiceEntity.getBranch())
                 .build());
 
-        logger.info("clientSavedDtos: " + clientSavedDtos);
+        logger.info("productResponseDTOS: " + productResponseDTOS);
 
-        return CompletableFuture.completedFuture(clientSavedDtos);
+        return CompletableFuture.completedFuture(productResponseDTOS);
     }
 
     /**
-     * This method is used to find a client by id and cache, also it is an asynchronous method
-     * @param Long id
-     * @return CompletableFuture<UserRequestDTO>
+     * This method is used to find a product by id, also it is an asynchronous method
+     * @param id id
+     * @return CompletableFuture<ProductResponseDTO>
      */
     @Async("asyncExecutor")
     @Override
-    public CompletableFuture<UserResponseDTO> findById(Long id) {
+    public CompletableFuture<ProductResponseDTO> findById(Long id) {
 
         logger.info("id: " + id);
 
-        UserEntity userEntity = this.userRepository.findById(id)
-                .orElseThrow(() -> new UserException("404", "Client not found", HttpStatus.NOT_FOUND));
+        Product productEntity = this.productRepository.findById(id)
+                .orElseThrow(() -> new ProductException("404", "Product not found", HttpStatus.NOT_FOUND));
 
-        logger.info("userEntity: " + userEntity);
+        logger.info("productEntity: " + productEntity);
 
-        UserResponseDTO userResponseDTO = UserResponseDTO.builder()
-                .id(userEntity.getId())
-                .fullName(userEntity.getFullName())
-                .email(userEntity.getEmail())
-                .role(userEntity.getRole())
+        ProductResponseDTO productResponseDTO = ProductResponseDTO.builder()
+                .id(productEntity.getId())
+                .name(productEntity.getName())
+                .stock(productEntity.getStock())
+                .branch(productEntity.getBranch())
                 .build();
 
-        logger.info("userResponseDTO: " + userResponseDTO);
+        logger.info("productResponseDTO: " + productResponseDTO);
 
-        return CompletableFuture.completedFuture(userResponseDTO);
+        return CompletableFuture.completedFuture(productResponseDTO);
 
     }
 
     /**
-     * This method is used to save a client, also it is an asynchronous method
-     * @param ClientDto userRequestDTO
+     * This method is used to save a new product, also it is an asynchronous method
+     * @param productRequestDTO productRequestDTO
      * @return CompletableFuture<HttpStatus>
      */
     @Override
-    public CompletableFuture<HttpStatus> save(UserRequestDTO userRequestDTO) {
-        if (userRequestDTO == null              ||
-            userRequestDTO.fullName().isBlank() ||
-            userRequestDTO.email().isBlank()    ||
-            userRequestDTO.password().isBlank()){
-            logger.error("UserRequestDTO must not be null");
-            throw new UserException("400", "UserRequestDTO must not be null", HttpStatus.BAD_REQUEST);
-        }
+    public CompletableFuture<HttpStatus> save(ProductRequestDTO productRequestDTO) {
 
-        var userRole = this.roleRepository.findRoleEntityById(2L);
+        var branch = this.branchRepository.findById(productRequestDTO.branchId())
+                .orElseThrow(() -> new BranchException("404", "Branch not found", HttpStatus.NOT_FOUND));
 
-        UserEntity userEntity = UserEntity.builder()
-                .fullName(userRequestDTO.fullName())
-                .email(userRequestDTO.email())
-                .password(new BCryptPasswordEncoder().encode(userRequestDTO.password()))
-                .isEnabled(true)
-                .accountNoExpired(true)
-                .accountNoLocked(true)
-                .credentialsNoExpired(true)
-                .role(userRole.getRoleName().name())
+        Product productEntity = Product.builder()
+                .name(productRequestDTO.name())
+                .stock(productRequestDTO.stock())
+                .branch(branch)
                 .build();
 
-        this.userRepository.save(userEntity);
+        this.productRepository.save(productEntity);
         return CompletableFuture.completedFuture(HttpStatus.CREATED);
     }
 
 
     /**
-     * This method is used to update a client, also it is an asynchronous method
-     * @param Long id
-     * @param ClientDto userRequestDTO
-     * @return CompletableFuture<UserRequestDTO>
+     * This method is used to update a product stock, also it is an asynchronous method
+     * @param productId productId
+     * @param newStockQuantity newStockQuantity
+     * @return CompletableFuture<HttpStatus>
      */
     @Async("asyncExecutor")
     @Override
-    public CompletableFuture<HttpStatus> update(Long id, UserRequestDTO userRequestDTO) {
+    public CompletableFuture<HttpStatus> updateStock(Long productId, Integer newStockQuantity) {
 
-        if (    id == null ||
-                userRequestDTO == null ||
-                userRequestDTO.email().isBlank() ||
-                userRequestDTO.password().isBlank()
-        ){
 
-            logger.error("CC and fields must not be null or blank");
-            throw new UserException("400", "Id and fields must not be null or blank", HttpStatus.BAD_REQUEST);
+        Product productEntityFound = this.productRepository.findById(productId)
+                .orElseThrow(() -> new BranchException("404", "Product not found", HttpStatus.NOT_FOUND));
 
-        }
+        logger.info("productEntityFound: " + productEntityFound);
 
-        UserEntity userEntityFound = this.userRepository.findById(id)
-                .orElseThrow(() -> new UserException("404", "Client not found", HttpStatus.NOT_FOUND));
-
-        logger.info("userEntityFound: " + userEntityFound);
-
-        this.userRepository.save(UserEntity.builder()
-                .id(userRequestDTO.id())
-                .fullName(userRequestDTO.fullName())
-                .password(new BCryptPasswordEncoder().encode(userRequestDTO.password()))
+        this.productRepository.save(Product.builder()
+                .id(productId)
+                .stock(newStockQuantity)
                 .build());
         return CompletableFuture.completedFuture(HttpStatus.OK);
     }
 
     /**
-     * This method is used to delete a client, also it is an asynchronous method
-     * @param Long cedula
+     * This method is used to delete a product by its id, also it is an asynchronous method
+     * @param id id
      * @return CompletableFuture<Void>
      */
     @Async("asyncExecutor")
@@ -171,13 +155,13 @@ public @Service class ProductServiceImpl implements ProductService {
     public CompletableFuture<HttpStatus> delete(Long id) {
 
         if (id == null) {
-            logger.error("CC must not be null");
-            throw new UserException("400", "CC must not be null", HttpStatus.BAD_REQUEST);
+            logger.error("Product id must not be null");
+            throw new UserException("400", "Product id must not be null", HttpStatus.BAD_REQUEST);
         }
 
-        this.userRepository.deleteById(id);
+        this.productRepository.deleteById(id);
 
-        return CompletableFuture.completedFuture(HttpStatus.NO_CONTENT);
+        return CompletableFuture.completedFuture(HttpStatus.OK);
     }
 
 

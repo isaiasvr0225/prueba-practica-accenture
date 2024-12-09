@@ -1,10 +1,12 @@
 package com.accenture.application.service.franchise;
 
 import com.accenture.domain.entity.Branch;
+import com.accenture.domain.entity.Franchise;
 import com.accenture.domain.exception.BranchException;
+import com.accenture.domain.exception.FranchiseException;
 import com.accenture.domain.exception.UserException;
-import com.accenture.infrastructure.persistence.dto.branch.BranchRequestDTO;
-import com.accenture.infrastructure.persistence.dto.branch.BranchResponseDTO;
+import com.accenture.infrastructure.persistence.dto.franchise.FranchiseRequestDTO;
+import com.accenture.infrastructure.persistence.dto.franchise.FranchiseResponseDTO;
 import com.accenture.infrastructure.persistence.repository.BranchRepository;
 import com.accenture.infrastructure.persistence.repository.FranchiseRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,111 +31,103 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public @Service class FranchiseServiceImpl implements FranchiseService {
 
-    private final BranchRepository branchRepository;
-
     private final FranchiseRepository franchiseRepository;
 
     private final Logger logger = LoggerFactory.getLogger(FranchiseServiceImpl.class);
 
 
     /**
-     * This method is used to find all branches using pagination, also it is an asynchronous method
+     * This method is used to find all franchises using pagination, also it is an asynchronous method
      * @param pageable pageable
-     * @return CompletableFuture<Page<BranchResponseDTO>>
+     * @return CompletableFuture<Page<FranchiseResponseDTO>>
      */
     @Async("asyncExecutor")
     @Override
-    public CompletableFuture<Page<BranchResponseDTO>> findAll(Pageable pageable) {
+    public CompletableFuture<Page<FranchiseResponseDTO>> findAll(Pageable pageable) {
 
-        Page<Branch> pageBranchEntity = this.branchRepository.findAll(pageable);
+        Page<Franchise> pageFranchiseEntity = this.franchiseRepository.findAll(pageable);
 
-        logger.info("pageBranchEntity: " + pageBranchEntity);
+        logger.info("pageFranchiseEntity: " + pageFranchiseEntity);
 
-        if (pageBranchEntity.isEmpty()) {
+        if (pageFranchiseEntity.isEmpty()) {
             logger.error("Internal server error");
-            throw new BranchException("500", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new FranchiseException("500", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        Page<BranchResponseDTO> branchResponseDTOS = pageBranchEntity.map((branchEntity) -> BranchResponseDTO.builder()
+        Page<FranchiseResponseDTO> franchiseResponseDTOS = pageFranchiseEntity.map((branchEntity) -> FranchiseResponseDTO.builder()
                 .id(branchEntity.getId())
                 .name(branchEntity.getName())
-                .franchise(branchEntity.getFranchise())
-                .products(branchEntity.getProducts())
+                .branches(branchEntity.getBranches())
                 .build());
 
-        logger.info("branchResponseDTOS: " + branchResponseDTOS);
+        logger.info("franchiseResponseDTOS: " + franchiseResponseDTOS);
 
-        return CompletableFuture.completedFuture(branchResponseDTOS);
+        return CompletableFuture.completedFuture(franchiseResponseDTOS);
     }
 
     /**
-     * This method is used to find a branch by id, also it is an asynchronous method
+     * This method is used to find a franchise by id, also it is an asynchronous method
      * @param id id
-     * @return CompletableFuture<BranchResponseDTO>
+     * @return CompletableFuture<FranchiseResponseDTO>
      */
     @Async("asyncExecutor")
     @Override
-    public CompletableFuture<BranchResponseDTO> findById(Long id) {
+    public CompletableFuture<FranchiseResponseDTO> findById(Long id) {
 
         logger.info("id: " + id);
 
-        Branch branchEntity = this.branchRepository.findById(id)
-                .orElseThrow(() -> new BranchException("404", "Branch not found", HttpStatus.NOT_FOUND));
+        Franchise franchiseEntity = this.franchiseRepository.findById(id)
+                .orElseThrow(() -> new FranchiseException("404", "Franchise not found", HttpStatus.NOT_FOUND));
 
-        logger.info("branchEntity: " + branchEntity);
+        logger.info("franchiseEntity: " + franchiseEntity);
 
-        BranchResponseDTO branchResponseDTO = BranchResponseDTO.builder()
-                .id(branchEntity.getId())
-                .name(branchEntity.getName())
-                .franchise(branchEntity.getFranchise())
-                .products(branchEntity.getProducts())
+        FranchiseResponseDTO franchiseResponseDTO = FranchiseResponseDTO.builder()
+                .id(franchiseEntity.getId())
+                .name(franchiseEntity.getName())
+                .branches(franchiseEntity.getBranches())
                 .build();
 
-        logger.info("branchResponseDTO: " + branchResponseDTO);
+        logger.info("franchiseResponseDTO: " + franchiseResponseDTO);
 
-        return CompletableFuture.completedFuture(branchResponseDTO);
+        return CompletableFuture.completedFuture(franchiseResponseDTO);
 
     }
 
     /**
-     * This method is used to save a new branch, also it is an asynchronous method
-     * @param branchRequestDTO branchRequestDTO
+     * This method is used to save a new franchise, also it is an asynchronous method
+     * @param franchiseRequestDTO franchiseRequestDTO
      * @return CompletableFuture<HttpStatus>
      */
     @Override
-    public CompletableFuture<HttpStatus> save(BranchRequestDTO branchRequestDTO) {
+    public CompletableFuture<HttpStatus> save(FranchiseRequestDTO franchiseRequestDTO) {
 
-        var franchise = this.franchiseRepository.findById(branchRequestDTO.franchiseId())
-                .orElseThrow(() -> new BranchException("404", "Franchise not found", HttpStatus.NOT_FOUND));
-
-        Branch branchEntity = Branch.builder()
-                .name(branchRequestDTO.name())
-                .franchise(franchise)
-                .products(branchRequestDTO.products())
+        Franchise franchiseEntity = Franchise.builder()
+                .name(franchiseRequestDTO.name())
+                .branches(franchiseRequestDTO.branches())
                 .build();
 
-        this.branchRepository.save(branchEntity);
+        this.franchiseRepository.save(franchiseEntity);
         return CompletableFuture.completedFuture(HttpStatus.CREATED);
     }
 
 
     /**
-     * This method is used to update a branch name, also it is an asynchronous method
+     * This method is used to update a franchise name, also it is an asynchronous method
      * @param id id
      * @param newBranchName newBranchName
-     * @return CompletableFuture<UserRequestDTO>
+     * @return CompletableFuture<HttpStatus>
      */
     @Async("asyncExecutor")
     @Override
-    public CompletableFuture<HttpStatus> updateBranchName(Long id, String newBranchName) {
+    public CompletableFuture<HttpStatus> updateFranchiseName(Long id, String newBranchName) {
 
 
-        Branch branchEntityFound = this.branchRepository.findById(id)
-                .orElseThrow(() -> new BranchException("404", "Branch not found", HttpStatus.NOT_FOUND));
+        Franchise franchiseEntityFound = this.franchiseRepository.findById(id)
+                .orElseThrow(() -> new FranchiseException("404", "Franchise not found", HttpStatus.NOT_FOUND));
 
-        logger.info("branchEntityFound: " + branchEntityFound);
+        logger.info("franchiseEntityFound: " + franchiseEntityFound);
 
-        this.branchRepository.save(Branch.builder()
+        this.franchiseRepository.save(Franchise.builder()
                 .id(id)
                 .name(newBranchName)
                 .build());
@@ -141,7 +135,7 @@ public @Service class FranchiseServiceImpl implements FranchiseService {
     }
 
     /**
-     * This method is used to delete a branch by its id, also it is an asynchronous method
+     * This method is used to delete a franchise by its id, also it is an asynchronous method
      * @param id id
      * @return CompletableFuture<Void>
      */
@@ -150,11 +144,11 @@ public @Service class FranchiseServiceImpl implements FranchiseService {
     public CompletableFuture<HttpStatus> delete(Long id) {
 
         if (id == null) {
-            logger.error("Branch id must not be null");
+            logger.error("Franchise id must not be null");
             throw new UserException("400", "Branch id must not be null", HttpStatus.BAD_REQUEST);
         }
 
-        this.branchRepository.deleteById(id);
+        this.franchiseRepository.deleteById(id);
 
         return CompletableFuture.completedFuture(HttpStatus.OK);
     }

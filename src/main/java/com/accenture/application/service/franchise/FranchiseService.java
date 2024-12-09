@@ -22,36 +22,36 @@ public interface FranchiseService {
     /**
      * This method is used to find all franchises using pagination
      * @param pageable pageable
-     * @return CompletableFuture<Page<BranchResponseDTO>>
+     * @return CompletableFuture<Page<FranchiseResponseDTO>>
      */
     CompletableFuture<Page<FranchiseResponseDTO>> findAll(Pageable pageable);
 
     /**
-     * This method is used to find a branch by id
+     * This method is used to find a franchise by id
      * @param id id
-     * @return CompletableFuture<BranchResponseDTO>
+     * @return CompletableFuture<FranchiseResponseDTO>
      */
     CompletableFuture<FranchiseResponseDTO> findById(Long id);
 
     /**
-     * This method is used to save a branch
-     * @param branchRequestDTO branchRequestDTO
-     * @return CompletableFuture<BranchRequestDTO>
+     * This method is used to save a franchise
+     * @param franchiseRequestDTO franchiseRequestDTO
+     * @return CompletableFuture<FranchiseRequestDTO>
      */
-    CompletableFuture<HttpStatus> save(FranchiseRequestDTO branchRequestDTO);
+    CompletableFuture<HttpStatus> save(FranchiseRequestDTO franchiseRequestDTO);
 
     /**
-     * This method is used to update a branch name
+     * This method is used to update a franchise name
      * @param id id
-     * @param newBranchName newBranchName
-     * @return CompletableFuture<UserRequestDTO>
+     * @param newFranchiseName newBranchName
+     * @return CompletableFuture<HttpStatus>
      */
-    CompletableFuture<HttpStatus> updateFranchiseName(Long id, String newBranchName);
+    CompletableFuture<HttpStatus> updateFranchiseName(Long id, String newFranchiseName);
 
     /**
-     * This method is used to delete a branch
+     * This method is used to delete a franchise
      * @param id id
-     * @return CompletableFuture<Void>
+     * @return CompletableFuture<HttpStatus>
      */
     CompletableFuture<HttpStatus> delete(Long id);
 
