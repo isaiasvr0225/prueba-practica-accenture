@@ -8,11 +8,11 @@
         <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.sprayl</groupId>
-    <artifactId>sprayl-backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>sprayl-backend</name>
-    <description>sprayl-backend</description>
+    <groupId>com.accenture</groupId>
+    <artifactId>prueba-practica-accenture</artifactId>
+    <version>1.0.0</version>
+    <name>prueba-practica-accenture</name>
+    <description>prueba-practica-accenture</description>
     <url/>
     <licenses>
         <license/>
@@ -62,11 +62,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${org.mapstruct.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -129,12 +124,6 @@
                     <source>17</source> <!-- depending on your project -->
                     <target>17</target> <!-- depending on your project -->
                     <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                        <!-- Lombok annotation processors -->
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
